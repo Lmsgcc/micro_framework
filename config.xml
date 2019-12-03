@@ -1,0 +1,11 @@
+<configuration>
+    <database>
+        <address>localhost</address>
+        <user>root</user>
+        <password></password>
+    </database>
+    <view>
+        <jquery_active>true</jquery_active>
+        <bootstrap_active>true</bootstrap_active>
+    </view>
+</configuration>
