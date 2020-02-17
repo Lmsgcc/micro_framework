@@ -14,6 +14,7 @@ namespace Structures{
         protected $_is_strict;
         protected $_size = 0;
         protected $_iterator = null;
+        protected $_type = null;
         public function __construct(bool $strict = false)
         {
             $this->_head = new Node();
@@ -49,6 +50,10 @@ namespace Structures{
 
         public function InsertAt($value, int $pos) : bool
         {
+            if(!$this->CheckType($value))
+            {
+                return false;
+            }
             $node = new Node($value);
             $to_insert_after = $this->FindIndex($pos);
             if ($to_insert_after === null) {
@@ -64,13 +69,37 @@ namespace Structures{
 
         public function AddFirst($value) : bool
         {
+            if ( !$this->CheckType($value) ){
+                return false;
+            }
             $this->InsertAt($value, 0);
             return true;
         }
 
         public function AddLast($value) : bool
         {
+            if( !$this->CheckType($value) ){
+                return false;
+            }
             $this->InsertAt($value, $this->_size);
+            return true;
+        }
+
+        private function CheckType($value) : bool
+        {
+            if($this->_is_strict)
+            {
+                $type = gettype($value);
+                if($type === 'object')
+                {
+                    $type = get_class($value);
+                }
+                if (!isset($this->_type)){
+                    $this->_type = $type;
+                    return true;
+                }
+                return $this->_type === $type;
+            }
             return true;
         }
     }
