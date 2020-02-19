@@ -8,4 +8,17 @@
         <jquery_active>true</jquery_active>
         <bootstrap_active>true</bootstrap_active>
     </view>
+    <cache>
+        <active>true</active>
+        <driver>Files</driver>
+        <expires>3600</expires>
+    </cache>
+    <environment>
+        <development>
+            <active>true</active>
+        </development>
+        <production>
+            <active>false</active>
+        </production>
+    </environment>
 </configuration>
