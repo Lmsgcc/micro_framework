@@ -4,6 +4,7 @@ namespace Model;
 use Configuration\Config;
 use Exception;
 use mysqli;
+use stdClass;
 
 abstract class Model
 {
@@ -24,6 +25,7 @@ abstract class Model
     {
         $this->_connection = Model::Connect();
         $this->_connection->query("USE `$this->_schema_name`");
+
     }
     /** Starts the database */
     static public function DatabaseInit()
@@ -109,6 +111,7 @@ abstract class Model
     }
     protected function Save($data) : int
     {
+
         try{
             if (empty($data)) {
                 return -1;
@@ -147,9 +150,36 @@ abstract class Model
         return -1;
     }
 
+    protected function BuildCacheKey(){
+        $debug_backtrace = debug_backtrace();
+        $request_obj = new stdClass();
+        /**
+         * Create key from last call before comming to the Model for execution
+         */
+        if( $trace = ($debug_backtrace[3] ?? null) )
+        {
+            $request_obj->caller = "{$trace["class"]} {$trace["type"]} {$trace["function"]}";
+            $request_obj->args = $trace["args"];
+        }
+        /**
+         * Else create the cache key from the called Model function and args
+         */
+        else if($trace = ($debug_backtrace[2] ?? null) )
+        {
+            $request_obj->caller = "{$trace["class"]} {$trace["type"]} {$trace["function"]}";
+            $request_obj->args = $trace["args"];
+        }
+        return json_encode($request_obj);
+    }
+
     protected function FetchAssociative($query) : array
     {
-        $result_array = [];
+        $cache_key = $this->BuildCacheKey();
+        $result_array = $GLOBALS["App"]->GetFromCache($cache_key);
+        if(!empty($result_array))
+        {
+            return $result_array;
+        }
         try
         {
             if ($result = $this->_connection->query($query)) {
@@ -160,6 +190,7 @@ abstract class Model
             /** Log error */
             echo $ex->getMessage();
         }
+        $GLOBALS["App"]->SetToCache($cache_key, $result_array);
         return $result_array;
     }
 
@@ -169,13 +200,21 @@ abstract class Model
         {
             return [];
         }
+        $cache_key = $this->BuildCacheKey();
+        $result = $GLOBALS["App"]->GetFromCache($cache_key);
+        if(!empty($result))
+        {
+            return $result;
+        }
         try
         {
             $query = "SELECT * FROM $this->_table WHERE id = $id";
             $result = $this->_connection->query($query);
             if($result && $result->num_rows > 0)
             {
-                return $result->fetch_assoc();
+                $result = $result->fetch_assoc();
+                $GLOBALS["App"]->SetToCache($cache_key, $result);
+                return $result;
             }
         }catch(Exception $ex)
         {

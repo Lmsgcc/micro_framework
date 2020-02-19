@@ -1,13 +1,16 @@
 <?php
 
-require_once "app/App.php";
-require_once "controllers/Controller.php";
-require_once "model/Model.php";
+require_once __DIR__."/app/App.php";
+require_once __DIR__."/controllers/Controller.php";
+require_once __DIR__."/model/Model.php";
+require_once __DIR__."/vendor/autoload.php";
+
 
 use Application\App;
 use Configuration\Config;
 
 $app = new App();
+$GLOBALS["App"] = &$app;
 
 $config = Config::GetInstance();
 
