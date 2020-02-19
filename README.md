@@ -1,3 +1,3 @@
-# product_test_frame
+# micro_framework
 
-In order to run copy the code into de server and change the database configuration in the "config.xml" so the framework can connect. The application will handle the rest
+This is just a for fun implementation of a light php framework intended to be used and adaptable to any situation so don't come here expecting Drupal. This just offers a baseline to develop bigger and better things
